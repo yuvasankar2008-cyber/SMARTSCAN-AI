@@ -13,8 +13,8 @@ def radar_card_html(sim: SimulationState) -> str:
     return clean(f"""
 <div class="ss-anchor" id="simulation-suite">
 <div class="ss-radar-head">
-<div class="ss-radar-title"><span class="ss-dot-lg live-pulse"></span><span>Real-Time Virtual Surveillance Radar</span></div>
-<span class="ss-xs-muted" id="radar-mode">Tracking 5 Sectors</span>
+<div class="ss-radar-title"><span class="ss-dot-lg live-pulse"></span><span>Synthetic Sector Activity Map</span></div>
+<span class="ss-xs-muted" id="radar-mode">5 fictional sectors</span>
 </div>
 </div>
 <div class="ss-radar-wrap">
@@ -36,7 +36,7 @@ def mission_head_html(sim: SimulationState) -> str:
 <div class="ss-mc-head">
 <div>
 <div class="ss-h3" role="heading" aria-level="3">Simulation Mission Control</div>
-<div class="ss-xs-muted">Run synchronized trials comparing Adaptive Learning vs Round-Robin</div>
+<div class="ss-xs-muted">Advance a fictional synthetic environment and review recorded observations</div>
 </div>
 <span class="ss-round-chip" id="sim-round-display">Round: {sim.round} / {TOTAL_ROUNDS}</span>
 </div>
@@ -56,13 +56,13 @@ def telemetry_html(sim: SimulationState) -> str:
         elif e["detected"]:
             lines.append(f'<div><span class="c-cyan">R{e["round"]}</span> → <b>{esc(e["sector"])}</b>: '
                          f'<span class="c-emerald fw-b">DETECTED ACTIVE</span> (+{e["reward"]} pts) | '
-                         f'<span class="c-slate">{esc(e["reason"])}</span></div>')
+                         f'<span class="c-slate">Synthetic observation recorded</span></div>')
         else:
             lines.append(f'<div><span class="c-cyan">R{e["round"]}</span> → <b>{esc(e["sector"])}</b>: '
                          f'<span class="c-slate">IDLE SCAN</span> ({e["reward"]} pts) | '
-                         f'<span class="c-slate">{esc(e["reason"])}</span></div>')
+                         f'<span class="c-slate">Synthetic observation recorded</span></div>')
     return clean(f"""
-<div class="ss-telemetry-label">Live Decision &amp; Detection Stream</div>
+<div class="ss-telemetry-label">Live Synthetic Event Log</div>
 <div class="ss-telemetry" id="telemetry-log">{"".join(lines)}</div>
 """)
 

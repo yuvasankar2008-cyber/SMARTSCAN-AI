@@ -20,9 +20,9 @@ Headless checks (no Streamlit needed): `pip install pytest && python -m pytest -
 |---|---|
 | `app.py` | Streamlit entry point, session state, live-run timer |
 | `simulation.py` | Sectors, UCB1 + utility + staleness scoring, scenarios, rewards, history, CSV |
-| `analytics.py` | KPI calculations (Pd, Pfa, average reward, accuracy), progress, allocation share |
+| `analytics.py` | Clearly defined synthetic Pd, unavailable Pfa, average reward and observed active yield |
 | `radar.py` | Radar drawn as inline SVG from Python (rings, crosshairs, blips, sweep) |
-| `components/` | `layout` (nav + footer), `dashboard` (hero KPIs + formula section), `mission_control` (radar card, controls, telemetry, CSV), `pitch_deck` (5 slides) |
+| `components/` | Existing layout, dashboard, mission control and pitch deck, plus `insights.py` (heatmap, scenario profiles, event summary, experiment history and guided demo) |
 | `styles.css` | The original look: dark cyber theme, glass cards, neon text, glow |
 | `.streamlit/config.toml` | Dark theme colours for native widgets |
 
@@ -61,15 +61,25 @@ Headless checks (no Streamlit needed): `pip install pytest && python -m pytest -
    actually computes `ln(round+1)/(N+1)` and staleness × `(W/2)` × `0.35`. The JS behaviour was kept.
 7. **Average Reward** is now cumulative reward ÷ rounds played (the JS showed the cumulative
    total under an "Average / Points per Round" label). The CSV still exports cumulative reward.
-8. **Before the first round / after Reset**, the KPIs show the page's original headline numbers
-   (84.5 %, 14.2 %, +7.51, 78.2 %). The JS reset showed a different set of hard-coded numbers.
-   These are placeholders; live values replace them as soon as a round runs.
+8. **Metric reporting.** Initial values are neutral. Pd uses the synthetic active-event ground truth; Pfa is marked N/A because no false-positive sensor model exists; observed active yield is not prediction accuracy.
 9. Telemetry shows the latest 50 lines (the full history is still exported); "bravo" is now "Bravo".
 10. The "Streamlit Dashboard" header link still points to `localhost:8501` as in the original.
 11. Export CSV is disabled until at least one round exists (replaces the JS `alert`).
 
-## Note on claims in the pitch copy
+## Reporting note
 
-The hero captions and slide text ("+36 % efficiency", "66 % vs 30 %", "+984 reward") are static
-text carried over from the original. The simulator does not run a round-robin baseline, so it
-does not produce those figures. Measure them before presenting them to a jury.
+The updated hero and pitch deck remove unsupported performance comparisons and real-world deployment claims. The scenario comparison shows expected synthetic activity profiles only; it is not a scheduler benchmark.
+
+
+## Added prototype features
+
+- Compact simulation completion panel that refreshes with the live simulation.
+- Recorded-observation heatmap: blank cells explicitly mean not observed.
+- Scenario profile comparison against the stationary synthetic reference (not a scheduler benchmark).
+- Descriptive latest-event panel and session-only experiment snapshots.
+- Guided presenter walkthrough.
+- KPI definitions corrected: false-alarm probability is N/A without a false-positive model; observed active yield is not prediction accuracy.
+
+## Scope and interpretation
+
+This is a fictional, non-operational educational simulation. It is not connected to RF hardware, real emitters, or operational systems. Scenario profile comparisons describe generated synthetic activity patterns and do not establish real-world detection or interception performance. Experiment history is held in Streamlit session state and is not permanent storage.

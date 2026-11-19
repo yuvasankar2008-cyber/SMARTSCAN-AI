@@ -1,10 +1,8 @@
-"""KPI and performance calculations (pure Python)."""
+"""Honest metrics for the fictional, synthetic SMARTSCAN demonstration."""
 from __future__ import annotations
-
 from simulation import SECTORS, TOTAL_ROUNDS, SimulationState
 
-# Values the original page shows before any round has run.
-INITIAL_KPIS = {"pd": "84.5%", "pfa": "14.2%", "avg_reward": "+7.51", "accuracy": "78.2%"}
+INITIAL_KPIS = {"pd": "0.0%", "pfa": "N/A", "avg_reward": "+0.00", "observed_yield": "0.0%"}
 
 
 def _pct(num: float, den: float) -> str:
@@ -12,21 +10,21 @@ def _pct(num: float, den: float) -> str:
 
 
 def compute_kpis(sim: SimulationState) -> dict:
-    """Display strings for the four hero KPIs.
+    """Return display-ready metrics without inventing unsupported measures.
 
-    pd         = detections / all truly-active sector-rounds   (JS: kpi-comp)
-    pfa        = idle scans / scans                            (JS: kpi-idle)
-    avg_reward = cumulative reward / rounds played             (label says "per round")
-    accuracy   = detections / scans                            (JS: kpi-eff)
+    Pd is the fraction of all synthetic active sector-round events that were
+    observed. Pfa is unavailable because the simulator has no false-positive
+    sensor model. Observed active yield is detections divided by observations;
+    it is not prediction accuracy.
     """
     if sim.round == 0:
         return dict(INITIAL_KPIS)
-    avg = sim.cumulative_reward / sim.round
+    allocations = sim.total_allocations
     return {
         "pd": _pct(sim.total_detected, sim.total_ground_truth),
-        "pfa": _pct(sim.total_idle, sim.total_allocations),
-        "avg_reward": f"{avg:+.2f}",
-        "accuracy": _pct(sim.total_detected, sim.total_allocations),
+        "pfa": "N/A",
+        "avg_reward": f"{(sim.cumulative_reward / sim.round) if sim.round else 0:+.2f}",
+        "observed_yield": _pct(sim.total_detected, allocations),
     }
 
 
@@ -35,6 +33,6 @@ def progress_pct(sim: SimulationState) -> float:
 
 
 def allocation_share(sim: SimulationState) -> dict:
-    """Fraction of all scans spent on each sector (drives the radar halos)."""
+    """Fraction of recorded observations associated with each fictional sector."""
     total = sum(sim.visits.values())
     return {s.id: (sim.visits[s.id] / total if total else 0.0) for s in SECTORS}

@@ -107,8 +107,9 @@ def test_kpis():
     assert compute_kpis(SimulationState()) == INITIAL_KPIS
     sim = run_full("stationary")
     k = compute_kpis(sim)
-    assert k["accuracy"] == f"{sim.total_detected / sim.total_allocations * 100:.1f}%"
-    assert k["pfa"] == f"{sim.total_idle / sim.total_allocations * 100:.1f}%"
+    assert k["observed_yield"] == f"{sim.total_detected / sim.total_allocations * 100:.1f}%"
+    assert k["pfa"] == "N/A"
+    assert k["pd"] == f"{sim.total_detected / sim.total_ground_truth * 100:.1f}%"
     assert k["avg_reward"] == f"{sim.cumulative_reward / sim.round:+.2f}"
 
 

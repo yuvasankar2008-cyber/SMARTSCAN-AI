@@ -1,4 +1,5 @@
 """Radar card + Simulation Mission Control (controls, progress, telemetry, CSV)."""
+from graph import render_simulation_progress
 from analytics import progress_pct
 from components import clean, esc
 from radar import radar_svg

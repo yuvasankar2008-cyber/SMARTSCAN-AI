@@ -14,11 +14,11 @@ def header_html() -> str:
 </div>
 </div>
 <div class="ss-nav">
-<a href="#mission-control">Mission Control</a>
-<a href="#simulation-suite">Live Simulation</a>
-<a href="#analytics-section">Analytics &amp; Radar</a>
-<a href="#presentation-deck">Pitch Deck</a>
-<a href="#about-section">About</a>
+    <a href="#mission-control">Mission Control</a>
+    <a href="#simulation-suite">Radar & Simulation</a>
+    <a href="#analytics-section">Analytics</a>
+    <a href="#presentation-deck">Pitch Deck</a>
+    <a href="#about-section">About</a>
 </div>
 <div class="ss-header-right">
 <div class="ss-online"><span class="ss-dot live-pulse"></span><span>ONLINE</span></div>

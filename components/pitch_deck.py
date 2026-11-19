@@ -64,7 +64,7 @@ def render_pitch_deck() -> None:
             with st.container(key="deck_head"):
                 c_title, c_prev, c_num, c_next = st.columns([6, 1.3, 0.9, 1.3])
                 c_title.markdown(head_html(), unsafe_allow_html=True)
-                c_prev.button("◀ Prev", key="deck_prev", on_click=_prev)
+                c_prev.button("◀Prev", key="deck_prev", on_click=_prev)
                 c_num.markdown(slide_counter_html(i), unsafe_allow_html=True)
                 c_next.button("Next ▶", key="deck_next", on_click=_next)
             st.markdown(slide_html(i), unsafe_allow_html=True)

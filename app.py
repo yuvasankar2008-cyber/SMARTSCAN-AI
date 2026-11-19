@@ -1,8 +1,7 @@
-"""SMARTSCAN AI - Streamlit entry point.   Run:  streamlit run app.py"""
 from pathlib import Path
 
 import streamlit as st
-
+from graph import render_simulation_progress
 from analytics import compute_kpis
 from components.dashboard import render_analytics, render_hero
 from components.layout import footer_html, header_html
@@ -45,7 +44,8 @@ def live_section() -> None:
                 render_radar_card(ss.sim)
             with right:
                 render_mission_control(ss.sim)
-
+# Full-width graph below Radar and Mission Control
+    render_simulation_progress(ss.sim)
     live()
 
 

@@ -1,11 +1,10 @@
 """Radar card + Simulation Mission Control (controls, progress, telemetry, CSV)."""
-from graph import render_simulation_progress
 from analytics import progress_pct
 from components import clean, esc
 from radar import radar_svg
 from simulation import (BEAM_OPTIONS, DEFAULT_C, SCENARIOS, TOTAL_ROUNDS,
                         SimulationState, history_to_csv)
-
+#from graph import render_simulation_progress
 LOG_LINES_SHOWN = 50   # newest first; keeps each live re-render small
 
 
@@ -134,11 +133,13 @@ def render_mission_control(sim: SimulationState) -> None:
             b2.button("⏸ Pause", key="btn_pause", on_click=pause_cb)
             b3.button("⏭ Step Round", key="btn_step", on_click=step_cb)
             b4.button(" Reset", key="btn_reset", on_click=reset_cb)
-            b5.download_button("Export CSV", data=history_to_csv(sim.history),
+            b5.download_button("Export CSV", data=history_to_csv(sim.history),      # Simulation Progress Graph
                                file_name="smartscan_simulation_results.csv",
                                mime="text/csv", key="btn_csv",
                                disabled=not sim.history,
                                help=None if sim.history else
                                "Run at least one round to generate CSV data.")
+        # SIMULATION PROGRESS GRAPH
+        #render_simulation_progress(sim)
 
         st.markdown(telemetry_html(sim), unsafe_allow_html=True)

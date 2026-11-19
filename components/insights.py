@@ -20,7 +20,7 @@ def render_guided_demo() -> None:
             ("02 · Environment", "Introduce the five fictional sectors and the synthetic scenario selector."),
             ("03 · Mission Control", "Use Step Round or Run Live Simulation to advance the software simulation."),
             ("04 · Visual progress", "Show the compact progress panel and the recorded-observation heatmap."),
-            ("05 · Analytics", "Explain the metric definitions and why unsupported metrics are marked unavailable."),
+            ("05 · Analytics", "Explain the synthetic false-alarm, interception, time-error and prediction metrics."),
             ("06 · Experiment history", "Save a snapshot and compare it with other runs in this browser session."),
         ]
         for title, description in steps:

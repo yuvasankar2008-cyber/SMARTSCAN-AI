@@ -101,6 +101,8 @@ sub { font-size: 75%; }
 .ss-kpi-label { font-size: .75rem; line-height: 1rem; text-transform: uppercase; letter-spacing: .05em; color: #94a3b8; font-weight: 600; }
 .ss-kpi-value { font-size: 1.875rem; line-height: 2.25rem; font-weight: 800; margin-top: .25rem; }
 .ss-kpi-cap { font-size: 11px; color: #34d399; margin-top: .125rem; font-weight: 500; }
+.ss-analytics-kpis { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .875rem; }
+@media (min-width: 768px) { .ss-analytics-kpis { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
 
 /* ---------- radar card ---------- */
 .ss-radar-head { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: .5rem; }

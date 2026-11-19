@@ -7,7 +7,7 @@ SLIDES = [
     {"tag": "SLIDE 2: THE PROTOTYPE", "title": "A Python-Based Adaptive Simulation Demonstrator",
      "content": "SMARTSCAN AI provides a software-only demonstration with synthetic activity labels, selectable scenarios, a radar-style visual, progress tracking and experiment summaries. It is not connected to real sensors or emitters."},
     {"tag": "SLIDE 3: TRANSPARENT REPORTING", "title": "Metrics With Explicit Definitions and Limitations",
-     "content": "The dashboard reports a synthetic detection fraction, observed active yield and average simulation reward. False-alarm probability is marked unavailable because the prototype does not include a false-positive sensor model."},
+     "content": "The dashboard reports synthetic false-alarm probability, active-episode intercept rate, intercept time error and classification accuracy. Every metric is calculated from generated outcomes and prior observations."},
     {"tag": "SLIDE 4: EXPERIMENT VISUALISATION", "title": "Heatmaps, Scenario Profiles and Experiment History",
      "content": "Recorded observations are displayed in a time-sector heatmap. Scenario profiles show expected synthetic activity patterns, while saved snapshots make separate demonstration runs easier to review."},
     {"tag": "SLIDE 5: SCOPE & FUTURE WORK", "title": "A Reproducible Educational Software Prototype",

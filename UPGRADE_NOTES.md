@@ -18,7 +18,10 @@
 
 ## Important metric notes
 - Synthetic Pd = observed active events / all synthetic active events.
-- Pfa = N/A because the current model does not generate false positives.
+- Pfa = false-positive predictions / inactive selected-scan observations; predictions use the prior Laplace-smoothed activity rate.
+- Mean intercept rate = active episodes observed at least once / all contiguous active episodes started.
+- Average intercept time error = mean absolute rounds between episode start and first observation.
+- Correct prediction percentage = correct active/inactive scan predictions / all selected-scan predictions.
 - Observed active yield = active observations / total observations; it is not accuracy.
 - Scenario comparison compares expected synthetic activity profiles, not scheduling algorithms.
 - Experiment snapshots remain in the current Streamlit session only.

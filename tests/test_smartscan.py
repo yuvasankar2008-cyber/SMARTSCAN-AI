@@ -40,10 +40,32 @@ def test_statistics_are_consistent():
         assert sum(sim.visits.values()) == sim.total_allocations
         assert sum(sim.detects.values()) == sim.total_detected
         assert sim.total_detected + sim.total_idle == sim.total_allocations
+        assert len(sim.ground_truth_history) == TOTAL_ROUNDS * len(SECTORS)
+        assert sim.total_predictions == sim.total_allocations
+        assert sim.total_correct_predictions == sum(h["prediction_correct"] for h in sim.history)
+        assert sim.total_false_alarms == sum(h["false_alarm"] for h in sim.history)
+        assert sim.total_inactive_observations == sum(not h["detected"] for h in sim.history)
+        assert sim.total_ground_truth == sum(row["active"] for row in sim.ground_truth_history)
+        prior_visits = {s.id: 0 for s in SECTORS}
+        prior_detects = {s.id: 0 for s in SECTORS}
+        by_name = {s.name: s for s in SECTORS}
+        for row in sim.history:
+            sector = by_name[row["selected"]]
+            expected_prediction = (
+                (prior_detects[sector.id] + 1) / (prior_visits[sector.id] + 2) > 0.5
+            )
+            assert row["predicted_active"] == expected_prediction
+            prior_visits[sector.id] += 1
+            prior_detects[sector.id] += row["detected"]
         by_id = {s.name: s for s in SECTORS}
         expect = sum(by_id[h["selected"]].reward if h["detected"] else -2 for h in sim.history)
         assert expect == sim.cumulative_reward == sim.history[-1]["reward"]
         assert sim.total_detected <= sim.total_ground_truth
+        assert all(
+            event["first_observed_round"] is None
+            or event["start_round"] <= event["first_observed_round"] <= event["end_round"]
+            for event in sim.active_events
+        )
 
 
 def test_cold_start_visits_every_sector_first():
@@ -98,8 +120,13 @@ def test_reset_clears_everything():
     sim = run_full("dynamic_surge")
     sim.reset()
     assert sim.round == 0 and sim.history == [] and sim.cumulative_reward == 0
+    assert sim.ground_truth_history == [] and sim.active_events == []
     assert all(v == 0 for v in {**sim.visits, **sim.detects, **sim.last_visited}.values())
-    assert sim.total_allocations == sim.total_idle == sim.total_detected == sim.total_ground_truth == 0
+    assert (sim.total_allocations == sim.total_idle == sim.total_detected
+            == sim.total_ground_truth == sim.total_false_alarms
+            == sim.total_inactive_observations == sim.total_predictions
+            == sim.total_correct_predictions == 0)
+    assert compute_kpis(sim) == INITIAL_KPIS
     assert sim.log[0]["text"].startswith("[RESET]")
 
 
@@ -108,17 +135,39 @@ def test_kpis():
     sim = run_full("stationary")
     k = compute_kpis(sim)
     assert k["observed_yield"] == f"{sim.total_detected / sim.total_allocations * 100:.1f}%"
-    assert k["pfa"] == "N/A"
+    assert k["pfa"] == f"{sim.total_false_alarms / sim.total_inactive_observations * 100:.1f}%"
+    assert sim.total_false_alarms > 0
     assert k["pd"] == f"{sim.total_detected / sim.total_ground_truth * 100:.1f}%"
     assert k["avg_reward"] == f"{sim.cumulative_reward / sim.round:+.2f}"
+    intercepted = [e for e in sim.active_events if e["first_observed_round"] is not None]
+    assert k["mean_intercept_rate"] == f"{len(intercepted) / len(sim.active_events) * 100:.1f}%"
+    avg_error = sum(
+        abs(e["first_observed_round"] - e["start_round"]) for e in intercepted
+    ) / len(intercepted)
+    assert k["avg_intercept_time_error"] == f"{avg_error:.1f} rounds"
+    assert k["correct_prediction_pct"] == (
+        f"{sim.total_correct_predictions / sim.total_predictions * 100:.1f}%"
+    )
+    assert sum(not row["detected"] for row in sim.history) == sim.total_inactive_observations
 
 
 def test_csv_export():
     sim = run_full("dynamic_surge", beams=2)
-    rows = list(csv.reader(io.StringIO(history_to_csv(sim.history))))
-    assert rows[0] == ["Round", "Selected_Sector", "Detected", "Cumulative_Reward"]
+    kpis = compute_kpis(sim)
+    rows = list(csv.reader(io.StringIO(history_to_csv(sim.history, kpis))))
+    assert rows[0] == [
+        "Round", "Selected_Sector", "Detected", "Predicted_Active",
+        "Prediction_Correct", "False_Alarm", "Activity_Start_Round",
+        "First_Observed_Round", "Cumulative_Reward", "Run_Pfa",
+        "Run_Mean_Intercept_Rate", "Run_Average_Intercept_Time_Error",
+        "Run_Correct_Prediction_Percentage",
+    ]
     assert len(rows) == 1 + len(sim.history)
     assert rows[1][2] in ("true", "false")
+    assert rows[1][9:] == [
+        kpis["pfa"], kpis["mean_intercept_rate"],
+        kpis["avg_intercept_time_error"], kpis["correct_prediction_pct"],
+    ]
 
 
 def test_pitch_deck_has_five_slides_and_wraps():
@@ -130,7 +179,7 @@ def test_pitch_deck_has_five_slides_and_wraps():
 
 def test_html_builders_have_no_javascript_and_no_blank_lines():
     sim = run_full("dynamic_surge", beams=2)
-    blobs = [hero_html(compute_kpis(sim)), analytics_html(), radar_card_html(sim),
+    blobs = [hero_html(compute_kpis(sim)), analytics_html(compute_kpis(sim)), radar_card_html(sim),
              telemetry_html(sim), progress_html(sim), slide_html(2), radar_svg(sim)]
     for b in blobs:
         assert not re.search(r"<script|onclick|javascript:", b, re.I)
@@ -142,9 +191,14 @@ def test_html_builders_have_no_javascript_and_no_blank_lines():
 
 def test_no_javascript_in_project():
     for p in ROOT.rglob("*"):
-        if p.suffix in {".js", ".ts", ".jsx", ".tsx"} and "node_modules" not in p.parts:
+        if (p.suffix in {".js", ".ts", ".jsx", ".tsx"}
+                and not any(part in {".venv", "venv", "node_modules"} for part in p.parts)):
             raise AssertionError(f"JS/TS file found: {p}")
-    app_code = "".join(p.read_text() for p in ROOT.rglob("*.py") if "tests" not in p.parts)
+    app_code = "".join(
+        p.read_text() for p in ROOT.rglob("*.py")
+        if "tests" not in p.parts
+        and not any(part in {".venv", "venv", "node_modules"} for part in p.parts)
+    )
     assert not re.search(r"<script|onclick=|setInterval|requestAnimationFrame", app_code)
 
 

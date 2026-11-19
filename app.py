@@ -42,12 +42,12 @@ def live_section() -> None:
         # Compact graph stays directly below the radar/control row and refreshes live.
         render_simulation_progress(ss.sim)
         render_insights(ss.sim)
+        render_analytics(compute_kpis(ss.sim))
     live()
 
 
 st.markdown(header_html(), unsafe_allow_html=True)
 render_guided_demo()
 live_section()
-render_analytics()
 render_pitch_deck()
 st.markdown(footer_html(), unsafe_allow_html=True)

@@ -12,7 +12,7 @@ def _kpi(label: str, value: str, caption: str, tone: str, val_id: str) -> str:
 def hero_html(kpis: dict) -> str:
     cards = "".join([
         _kpi("Synthetic Probability of Detection", kpis["pd"], "Observed active events / all active events", "cyan", "kpi-comp"),
-        _kpi("False Alarm Probability", kpis["pfa"], "Unavailable: no false-positive sensor model", "purple", "kpi-idle"),
+        _kpi("Probability of False Alarm", kpis["pfa"], "False alarms / inactive observations", "purple", "kpi-idle"),
         _kpi("Average Simulation Reward", kpis["avg_reward"], "Cumulative reward / completed rounds", "blue", "kpi-reward"),
         _kpi("Observed Active Yield", kpis["observed_yield"], "Active observations / total observations", "amber", "kpi-eff"),
     ])
@@ -29,21 +29,34 @@ def hero_html(kpis: dict) -> str:
 """)
 
 
-def analytics_html() -> str:
-    return clean("""
+def analytics_html(kpis: dict) -> str:
+    pfa = kpis["pfa"]
+    intercept_rate = kpis["mean_intercept_rate"]
+    time_error = kpis["avg_intercept_time_error"]
+    correct_predictions = kpis["correct_prediction_pct"]
+    return clean(f"""
 <div class="ss-card ss-analytics ss-anchor" id="analytics-section">
 <div class="ss-section-head"><div><div class="ss-h2" role="heading" aria-level="2">Metric Definitions &amp; Simulation Scope</div>
 <div class="ss-sub">Transparent reporting for synthetic observations</div></div><span class="ss-chip-cyan">Explainable Results</span></div>
+<div class="ss-analytics-kpis">
+<div class="ss-kpi ss-kpi-purple" title="False-positive predictions divided by all inactive selected scans. Prediction uses prior smoothed activity estimates."><div class="ss-kpi-label">Probability of False Alarm (Pfa)</div><div class="ss-kpi-value c-purple">{pfa}</div><div class="ss-kpi-cap">False alarms / inactive observations</div></div>
+<div class="ss-kpi ss-kpi-cyan" title="Distinct contiguous active episodes observed at least once divided by all active episodes started."><div class="ss-kpi-label">Mean Intercept Rate</div><div class="ss-kpi-value c-cyan">{intercept_rate}</div><div class="ss-kpi-cap">Observed active episodes / all episodes</div></div>
+<div class="ss-kpi ss-kpi-blue" title="Mean absolute difference, in rounds, between episode start and its first successful observation."><div class="ss-kpi-label">Average Intercept Time Error</div><div class="ss-kpi-value c-blue">{time_error}</div><div class="ss-kpi-cap">Average delay from episode start</div></div>
+<div class="ss-kpi ss-kpi-amber" title="Correct active/inactive classifications divided by all selected-scan predictions."><div class="ss-kpi-label">Correct Predictions</div><div class="ss-kpi-value c-amber">{correct_predictions}</div><div class="ss-kpi-cap">Correct predictions / all predictions</div></div>
+</div>
 <div class="ss-two-col"><div class="ss-formula-box"><div class="ss-formula-label">Reported metric definitions</div>
 <div class="ss-formula"><b>Pd</b> = observed active events ÷ all synthetic active events</div>
-<div class="ss-formula"><b>Observed active yield</b> = active observations ÷ total observations</div>
-<div class="ss-formula-notes"><div>• Average reward = cumulative simulation reward ÷ completed rounds.</div>
-<div>• Pfa is not calculated because the prototype has no false-positive sensor model.</div>
-<div>• Observed active yield is not prediction accuracy.</div></div></div>
+<div class="ss-formula"><b>Pfa</b> = false alarms ÷ inactive selected-scan observations</div>
+<div class="ss-formula"><b>Mean intercept rate</b> = observed active episodes ÷ all started active episodes</div>
+<div class="ss-formula"><b>Time error</b> = average |first observation round − episode start round|</div>
+<div class="ss-formula"><b>Correct predictions</b> = correct active/inactive predictions ÷ all predictions</div>
+<div class="ss-formula-notes"><div>• Each selected scan is classified from that sector's prior Laplace-smoothed activity rate; a rate above 50% predicts active.</div>
+<div>• An active episode is a contiguous run of active rounds for one synthetic sector.</div>
+<div>• Average reward = cumulative simulation reward ÷ completed rounds. Observed active yield is not prediction accuracy.</div></div></div>
 <div class="ss-highlights"><div class="ss-hl ss-hl-purple"><div class="ss-hl-title">Synthetic ground truth</div>
-<div class="ss-hl-text">The environment generates fictional active/inactive labels. Unobserved active events count as not observed when calculating the synthetic detection fraction.</div></div>
+<div class="ss-hl-text">The environment generates fictional active/inactive labels each round. Only selected-sector outcomes count as predictions or observations; unobserved activity episodes remain in the intercept-rate denominator.</div></div>
 <div class="ss-hl ss-hl-cyan"><div class="ss-hl-title">No unsupported claims</div>
-<div class="ss-hl-text">The dashboard does not claim measured false-alarm reduction, real-world interception performance or a validated advantage over another scheduler.</div></div>
+<div class="ss-hl-text">These metrics describe synthetic software outcomes only, not real-world interception performance or RF measurements.</div></div>
 <div class="ss-hl ss-hl-emerald"><div class="ss-hl-title">Prototype boundary</div>
 <div class="ss-hl-text">This project is a fictional, non-operational software demonstration. Its metrics describe only the included synthetic data.</div></div></div></div></div>
 """)
@@ -54,6 +67,6 @@ def render_hero(kpis: dict) -> None:
     st.markdown(hero_html(kpis), unsafe_allow_html=True)
 
 
-def render_analytics() -> None:
+def render_analytics(kpis: dict) -> None:
     import streamlit as st
-    st.markdown(analytics_html(), unsafe_allow_html=True)
+    st.markdown(analytics_html(kpis), unsafe_allow_html=True)

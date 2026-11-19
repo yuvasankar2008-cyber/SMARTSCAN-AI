@@ -1,5 +1,5 @@
 """Radar card + Simulation Mission Control (controls, progress, telemetry, CSV)."""
-from analytics import progress_pct
+from analytics import compute_kpis, progress_pct
 from components import clean, esc
 from radar import radar_svg
 from simulation import (BEAM_OPTIONS, DEFAULT_C, SCENARIOS, TOTAL_ROUNDS,
@@ -133,7 +133,8 @@ def render_mission_control(sim: SimulationState) -> None:
             b2.button("⏸ Pause", key="btn_pause", on_click=pause_cb)
             b3.button("⏭ Step Round", key="btn_step", on_click=step_cb)
             b4.button(" Reset", key="btn_reset", on_click=reset_cb)
-            b5.download_button("Export CSV", data=history_to_csv(sim.history),      # Simulation Progress Graph
+            b5.download_button("Export CSV", data=history_to_csv(
+                                   sim.history, compute_kpis(sim)),      # Simulation Progress Graph
                                file_name="smartscan_simulation_results.csv",
                                mime="text/csv", key="btn_csv",
                                disabled=not sim.history,

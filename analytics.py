@@ -2,29 +2,49 @@
 from __future__ import annotations
 from simulation import SECTORS, TOTAL_ROUNDS, SimulationState
 
-INITIAL_KPIS = {"pd": "0.0%", "pfa": "N/A", "avg_reward": "+0.00", "observed_yield": "0.0%"}
+INITIAL_KPIS = {
+    "pd": "N/A",
+    "pfa": "N/A",
+    "avg_reward": "+0.00",
+    "observed_yield": "N/A",
+    "mean_intercept_rate": "N/A",
+    "avg_intercept_time_error": "N/A",
+    "correct_prediction_pct": "N/A",
+}
 
 
 def _pct(num: float, den: float) -> str:
-    return f"{(num / den * 100) if den > 0 else 0:.1f}%"
+    return f"{num / den * 100:.1f}%" if den > 0 else "N/A"
 
 
 def compute_kpis(sim: SimulationState) -> dict:
-    """Return display-ready metrics without inventing unsupported measures.
-
-    Pd is the fraction of all synthetic active sector-round events that were
-    observed. Pfa is unavailable because the simulator has no false-positive
-    sensor model. Observed active yield is detections divided by observations;
-    it is not prediction accuracy.
-    """
+    """Return display-ready metrics computed from synthetic outcomes."""
     if sim.round == 0:
         return dict(INITIAL_KPIS)
     allocations = sim.total_allocations
+    intercepted_events = [
+        event for event in sim.active_events
+        if event["first_observed_round"] is not None
+    ]
+    time_error = (
+        sum(
+            abs(event["first_observed_round"] - event["start_round"])
+            for event in intercepted_events
+        ) / len(intercepted_events)
+        if intercepted_events else None
+    )
     return {
         "pd": _pct(sim.total_detected, sim.total_ground_truth),
-        "pfa": "N/A",
+        "pfa": _pct(sim.total_false_alarms, sim.total_inactive_observations),
         "avg_reward": f"{(sim.cumulative_reward / sim.round) if sim.round else 0:+.2f}",
         "observed_yield": _pct(sim.total_detected, allocations),
+        "mean_intercept_rate": _pct(len(intercepted_events), len(sim.active_events)),
+        "avg_intercept_time_error": (
+            f"{time_error:.1f} rounds" if time_error is not None else "N/A"
+        ),
+        "correct_prediction_pct": _pct(
+            sim.total_correct_predictions, sim.total_predictions
+        ),
     }
 
 

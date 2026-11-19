@@ -20,7 +20,7 @@ Headless checks (no Streamlit needed): `pip install pytest && python -m pytest -
 |---|---|
 | `app.py` | Streamlit entry point, session state, live-run timer |
 | `simulation.py` | Sectors, UCB1 + utility + staleness scoring, scenarios, rewards, history, CSV |
-| `analytics.py` | Clearly defined synthetic Pd, unavailable Pfa, average reward and observed active yield |
+| `analytics.py` | Synthetic Pd, Pfa, active-episode intercept rate/time error, prediction accuracy, reward and observed active yield |
 | `radar.py` | Radar drawn as inline SVG from Python (rings, crosshairs, blips, sweep) |
 | `components/` | Existing layout, dashboard, mission control and pitch deck, plus `insights.py` (heatmap, scenario profiles, event summary, experiment history and guided demo) |
 | `styles.css` | The original look: dark cyber theme, glass cards, neon text, glow |
@@ -61,7 +61,7 @@ Headless checks (no Streamlit needed): `pip install pytest && python -m pytest -
    actually computes `ln(round+1)/(N+1)` and staleness × `(W/2)` × `0.35`. The JS behaviour was kept.
 7. **Average Reward** is now cumulative reward ÷ rounds played (the JS showed the cumulative
    total under an "Average / Points per Round" label). The CSV still exports cumulative reward.
-8. **Metric reporting.** Initial values are neutral. Pd uses the synthetic active-event ground truth; Pfa is marked N/A because no false-positive sensor model exists; observed active yield is not prediction accuracy.
+8. **Metric reporting.** Metrics use only synthetic ground truth and selected scans. Predictions use each sector's prior Laplace-smoothed active rate (active above 50%); an active episode is a contiguous run of active rounds. Values are N/A when their denominator has no data.
 9. Telemetry shows the latest 50 lines (the full history is still exported); "bravo" is now "Bravo".
 10. The "Streamlit Dashboard" header link still points to `localhost:8501` as in the original.
 11. Export CSV is disabled until at least one round exists (replaces the JS `alert`).
@@ -78,7 +78,7 @@ The updated hero and pitch deck remove unsupported performance comparisons and r
 - Scenario profile comparison against the stationary synthetic reference (not a scheduler benchmark).
 - Descriptive latest-event panel and session-only experiment snapshots.
 - Guided presenter walkthrough.
-- KPI definitions corrected: false-alarm probability is N/A without a false-positive model; observed active yield is not prediction accuracy.
+- Added synthetic false-alarm probability, active-episode intercept rate and time error, and correct-prediction percentage; observed active yield remains distinct from prediction accuracy.
 
 ## Scope and interpretation
 

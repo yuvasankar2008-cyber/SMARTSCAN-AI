@@ -322,3 +322,41 @@ div[data-baseweb="select"]:focus-within > div { border-color: #22d3ee !important
 .ss-experiment-table th,.ss-experiment-table td { padding:9px 11px; text-align:left; border-bottom:1px solid rgba(120,160,190,.16); }
 .ss-experiment-table th { color:#9fcfe0; font-weight:650; background:rgba(35,75,100,.20); }
 .ss-experiment-table td { color:#d4e2ed; }
+
+/* Fix Simulation Progress timeline label overlap */
+.ss-progress-labels {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    margin-top: 14px;
+    flex-wrap: wrap;
+}
+
+.ss-progress-labels span {
+    line-height: 1.6;
+    white-space: nowrap;
+}
+
+/* Keep start and finish away from percentage markers */
+.ss-progress-start {
+    margin-right: auto;
+    text-align: left;
+}
+
+.ss-progress-finish {
+    margin-left: auto;
+    text-align: right;
+}
+
+/* Improve spacing on smaller screens */
+@media (max-width: 600px) {
+    .ss-progress-labels {
+        gap: 8px;
+        justify-content: space-between;
+    }
+
+    .ss-progress-labels span {
+        font-size: 10px;
+    }
+}

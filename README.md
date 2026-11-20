@@ -82,4 +82,26 @@ The updated hero and pitch deck remove unsupported performance comparisons and r
 
 ## Scope and interpretation
 
-This is a fictional, non-operational educational simulation. It is not connected to RF hardware, real emitters, or operational systems. Scenario profile comparisons describe generated synthetic activity patterns and do not establish real-world detection or interception performance. Experiment history is held in Streamlit session state and is not permanent storage.
+This is a fictional, non-operational educational simulation. It is not connected to RF hardware, real emitters, or operational systems. Scenario profile comparisons describe generated synthetic activity patterns and do not establish real-world detection or interception performance. Existing C4 experiment snapshots remain browser-session history; Data Intelligence Centre experiments persist in SQLite.
+
+## Data Intelligence Centre
+
+The application includes a persistent SQLite-backed Data Intelligence Centre:
+
+- Every simulation round is collected exactly once by stable record IDs.
+- CSV uploads are previewed, validated, and stored by experiment.
+- Validation distinguishes VALID, WARNING, and REJECTED records.
+- Data-quality percentage is the valid plus warning share of received records, not prediction accuracy.
+- Stored experiments persist in `data/smartscan.db`.
+- Model evaluation uses separate shuffled train/test splits and a training-derived baseline.
+
+For Python 3.12 on Windows:
+
+```powershell
+py -3.12 -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
+python -m pytest -q
+streamlit run app.py
+```

@@ -54,11 +54,11 @@ def telemetry_html(sim: SimulationState) -> str:
         if e["kind"] == "system":
             lines.append(f'<div class="c-cyan">{esc(e["text"])}</div>')
         elif e["detected"]:
-            lines.append(f'<div><span class="c-cyan">R{e["round"]}</span> → <b>{esc(e["sector"])}</b>: '
+            lines.append(f'<div><span class="c-cyan">R{e["round"]}</span> -&gt; <b>{esc(e["sector"])}</b>: '
                          f'<span class="c-emerald fw-b">DETECTED ACTIVE</span> (+{e["reward"]} pts) | '
                          f'<span class="c-slate">Synthetic observation recorded</span></div>')
         else:
-            lines.append(f'<div><span class="c-cyan">R{e["round"]}</span> → <b>{esc(e["sector"])}</b>: '
+            lines.append(f'<div><span class="c-cyan">R{e["round"]}</span> -&gt; <b>{esc(e["sector"])}</b>: '
                          f'<span class="c-slate">IDLE SCAN</span> ({e["reward"]} pts) | '
                          f'<span class="c-slate">Synthetic observation recorded</span></div>')
     return clean(f"""
@@ -94,15 +94,27 @@ def reset_cb():
     ss = _ss()
     ss.sim.reset()
     ss.running = False
+    ss.dc_internal_experiment = None
     ss._rerun_app = True
 
 
 def advance() -> None:
     """Run one round using the current control values (same as JS stepSim)."""
     ss = _ss()
+    from data_manager import DataManager
+    if ss.get("dc_internal_experiment") is None:
+        ss.dc_internal_experiment = DataManager().new_experiment(
+            name=f"Internal simulation {ss.sim.round + 1}",
+            source="Internal simulation",
+            scenario=ss.get("scenario", "dynamic_surge"),
+        )
     ss.sim.step(scenario=ss.get("scenario", "dynamic_surge"),
                 c=float(ss.get("c_param", DEFAULT_C)),
                 beams=int(ss.get("beams", 1)))
+    if ss.sim.history:
+        DataManager().collect_simulation_history(
+            ss.sim, ss.dc_internal_experiment
+        )
 
 
 # ---------------------------------------------------------------- render
@@ -129,9 +141,9 @@ def render_mission_control(sim: SimulationState) -> None:
 
         with st.container(key="btn_bar"):
             b1, b2, b3, b4, b5 = st.columns([1.7, 1, 1.15, 1, 1.35])
-            b1.button("▶ Run Live Simulation", key="btn_start", on_click=start_cb)
-            b2.button("⏸ Pause", key="btn_pause", on_click=pause_cb)
-            b3.button("⏭ Step Round", key="btn_step", on_click=step_cb)
+            b1.button("Run Live Simulation", key="btn_start", on_click=start_cb)
+            b2.button("Pause", key="btn_pause", on_click=pause_cb)
+            b3.button("Step Round", key="btn_step", on_click=step_cb)
             b4.button(" Reset", key="btn_reset", on_click=reset_cb)
             b5.download_button("Export CSV", data=history_to_csv(
                                    sim.history, compute_kpis(sim)),      # Simulation Progress Graph

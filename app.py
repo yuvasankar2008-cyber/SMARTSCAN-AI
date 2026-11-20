@@ -7,6 +7,7 @@ from components.insights import render_guided_demo, render_insights
 from components.layout import footer_html, header_html
 from components.mission_control import advance, render_mission_control, render_radar_card
 from components.pitch_deck import render_pitch_deck
+from components.data_centre import render_data_centre
 from simulation import TOTAL_ROUNDS, SimulationState
 
 TICK_SECONDS = 0.25
@@ -49,5 +50,6 @@ def live_section() -> None:
 st.markdown(header_html(), unsafe_allow_html=True)
 render_guided_demo()
 live_section()
+render_data_centre()
 render_pitch_deck()
 st.markdown(footer_html(), unsafe_allow_html=True)

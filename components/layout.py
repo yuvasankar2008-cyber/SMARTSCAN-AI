@@ -17,6 +17,7 @@ def header_html() -> str:
     <a href="#mission-control">Mission Control</a>
     <a href="#simulation-suite">Radar & Simulation</a>
     <a href="#analytics-section">Analytics</a>
+    <a href="#data-centre">Data Centre</a>
     <a href="#presentation-deck">Pitch Deck</a>
     <a href="#about-section">About</a>
 </div>

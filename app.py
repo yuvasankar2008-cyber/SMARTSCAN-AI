@@ -9,7 +9,7 @@ from components.mission_control import advance, render_mission_control, render_r
 from components.pitch_deck import render_pitch_deck
 from simulation import TOTAL_ROUNDS, SimulationState
 
-TICK_SECONDS = 0.1
+TICK_SECONDS = 0.25
 st.set_page_config(page_title="SMARTSCAN AI | Synthetic Scan Simulation - SIH 2026",
                    page_icon="📡", layout="wide", initial_sidebar_state="collapsed")
 css = (Path(__file__).parent / "styles.css").read_text(encoding="utf-8")
